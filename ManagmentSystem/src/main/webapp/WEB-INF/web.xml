@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd" id="WebApp_ID" version="6.0">
+  
+  
+  <servlet>
+    <servlet-name>HomeRedirectServlet</servlet-name>
+    <servlet-class>com.managementsystem.controller.HomeRedirectController</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>HomeRedirectServlet</servlet-name>
+    <url-pattern>/</url-pattern>
+</servlet-mapping>
+  
+ <servlet>
+ 	<servlet-name>AuthenticationServlet</servlet-name>
+ 	<servlet-class>com.managementsystem.controller.AuthenticationController</servlet-class>
+ </servlet>
+ <servlet-mapping>
+ 	<servlet-name>AuthenticationServlet</servlet-name>
+ 	<url-pattern>/authenticate</url-pattern>
+ </servlet-mapping>
+ 
+ <servlet>
+ 	<servlet-name>EmployeeController</servlet-name>
+ 	<servlet-class>com.managementsystem.controller.EmployeeController</servlet-class>
+ </servlet>
+ <servlet-mapping>
+ 	<servlet-name>EmployeeController</servlet-name>
+ 	<url-pattern>/employees</url-pattern>
+ </servlet-mapping>
+  <servlet>
+ 	<servlet-name>TaskController</servlet-name>
+ 	<servlet-class>com.managementsystem.controller.TaskController</servlet-class>
+ </servlet>
+ <servlet-mapping>
+ 	<servlet-name>TaskController</servlet-name>
+ 	<url-pattern>/tasks</url-pattern>
+ </servlet-mapping>
+ 
+ <servlet>
+ 	<servlet-name>TeamController</servlet-name>
+ 	<servlet-class>com.managementsystem.controller.TeamController</servlet-class>
+ </servlet>
+ <servlet-mapping>
+ 	<servlet-name>TeamController</servlet-name>
+ 	<url-pattern>/teams</url-pattern>
+ </servlet-mapping>
+ 
+</web-app>
