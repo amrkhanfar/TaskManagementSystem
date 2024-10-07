@@ -13,7 +13,7 @@ import com.managementsystem.util.DatabaseConnection;
 public class TaskStatusDAO implements TaskStatusDAOInterface {
 
 	@Override
-	public List<TaskStatus> getAllStatus() {
+	public List<TaskStatus> getAllStatuses() {
 		String sql = "SELECT * FROM task_status";
         List<TaskStatus> statuses = new ArrayList<>();
 

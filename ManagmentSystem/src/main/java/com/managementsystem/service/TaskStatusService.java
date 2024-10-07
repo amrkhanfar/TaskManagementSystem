@@ -9,6 +9,6 @@ public class TaskStatusService {
 	private TaskStatusDAO taskStatusDAO = new TaskStatusDAO();
 	
 	public List<TaskStatus> getAllTaskStatus(){
-		return taskStatusDAO.getAllStatus();
+		return taskStatusDAO.getAllStatuses();
 	}
 }

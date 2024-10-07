@@ -2,7 +2,11 @@ package com.managementsystem.model;
 
 /**
  * Represents a role in the Task Management System.
+ * Note that roles are mapped here based on the database i worked on
+ * You might need to change the mapping.
  * 
+ * @author Amr
+ * @version Oct 7, 2024
  */
 public class Role {
     
