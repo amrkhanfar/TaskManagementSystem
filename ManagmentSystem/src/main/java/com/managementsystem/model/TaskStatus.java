@@ -6,7 +6,6 @@ package com.managementsystem.model;
  */
 public class TaskStatus {
     
-    
     /**
      * Constant representing the Pending status ID in the database.
      * You might have to change it based on the task_tatus table database.

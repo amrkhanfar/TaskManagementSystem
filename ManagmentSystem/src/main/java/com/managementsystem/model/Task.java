@@ -8,7 +8,6 @@ package com.managementsystem.model;
 * @version Oct 7, 2024
  */
 public class Task {
-
     private int id;
     private String task_title;
     private String task_description;

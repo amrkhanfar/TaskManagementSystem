@@ -1,21 +1,20 @@
 package com.managementsystem.model;
 
 /**
-* 
-* Employee - Represents employee in management system
-*
-* @author Amr
-* @version Oct 6, 2024
+ * 
+ * Employee - Represents employee in management system
+ *
+ * @author Amr
+ * @version Oct 6, 2024
  */
 public class Employee {
-
     private int id;
     private String name;
     private String email;
     private int role_id;
     private int team_id;
     private String password;
-    
+
     /**
      * Constructs a new employee with the specified parameters
      * 
@@ -34,7 +33,7 @@ public class Employee {
 	this.team_id = team_id;
 	this.password = password;
     }
-    
+
     /**
      * Returns the employee id
      * 
@@ -43,16 +42,16 @@ public class Employee {
     public int getId() {
 	return id;
     }
-    
+
     /**
-     *  Sets the employee id
+     * Sets the employee id
      * 
      * @param id
      */
     public void setId(int id) {
 	this.id = id;
     }
-    
+
     /**
      * Returns the employee name
      * 
@@ -61,7 +60,7 @@ public class Employee {
     public String getName() {
 	return name;
     }
-    
+
     /**
      * Sets the employee name
      * 
@@ -70,16 +69,16 @@ public class Employee {
     public void setName(String name) {
 	this.name = name;
     }
-    
+
     /**
-     *  Returns the employee email
-     *  
+     * Returns the employee email
+     * 
      * @return the email
      */
     public String getEmail() {
 	return email;
     }
-    
+
     /**
      * Sets the employee email
      * 
@@ -88,7 +87,7 @@ public class Employee {
     public void setEmail(String email) {
 	this.email = email;
     }
-    
+
     /**
      * Returns the employee role id which is mapped to role name in the Role class.
      * 
@@ -97,17 +96,16 @@ public class Employee {
     public int getRole_id() {
 	return role_id;
     }
-    
+
     /**
-     * Sets the employee role id.
-     * Roles are mapped in Role.java as constants
-     *  
+     * Sets the employee role id. Roles are mapped in Role.java as constants
+     * 
      * @param role_id
      */
     public void setRole_id(int role_id) {
 	this.role_id = role_id;
     }
-    
+
     /**
      * Returns the employee team id
      * 
@@ -116,7 +114,7 @@ public class Employee {
     public int getTeam_id() {
 	return team_id;
     }
-    
+
     /**
      * Sets the employee team id
      * 
@@ -125,7 +123,7 @@ public class Employee {
     public void setTeam_id(int team_id) {
 	this.team_id = team_id;
     }
-    
+
     /**
      * Returns the employee password
      * 
@@ -134,7 +132,7 @@ public class Employee {
     public String getPassword() {
 	return password;
     }
-    
+
     /**
      * Sets the employee id
      * 
@@ -143,5 +141,5 @@ public class Employee {
     public void setPassword(String password) {
 	this.password = password;
     }
-    
+
 }

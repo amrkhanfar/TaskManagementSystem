@@ -14,7 +14,6 @@ import com.managementsystem.model.TaskStatus;
  * @version Oct 7, 2024
  */
 public interface TaskStatusDAOInterface {
-    
     /**
      * Note that all statuses are mapped in TaskStatus.java class as public static fields
      * You might need to modify them based on the database.

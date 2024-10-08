@@ -15,7 +15,6 @@ import com.managementsystem.model.Task;
  * @version Oct 7, 2024
  */
 public interface RoleDAOInterface {
-    
     /**
      * Note that all roles are mapped in Role.java class ass public static fields
      * You might need to modify them based on the database.

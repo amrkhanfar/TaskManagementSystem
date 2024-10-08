@@ -10,7 +10,6 @@ package com.managementsystem.model;
  */
 public class Role {
     
-    
     /** Constant representing the Manager role ID in the database. */
     public static int MANAGER = 1;
     

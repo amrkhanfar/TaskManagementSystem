@@ -3,6 +3,14 @@ package com.managementsystem.util;
 import java.util.List;
 import com.managementsystem.model.Team;
 
+/**
+ * 
+* TeamRepresentation - This class encapsulates teams with their members
+* it was mainly created for handling forwarding data to jsps 
+*
+* @author 
+* @version Oct 8, 2024
+ */
 public class TeamRepresentation {
     private Team data;
     private List<EmployeeRepresentation> members;

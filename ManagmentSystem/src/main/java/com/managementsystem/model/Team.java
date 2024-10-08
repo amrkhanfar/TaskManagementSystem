@@ -2,23 +2,22 @@ package com.managementsystem.model;
 
 /**
  * 
-* Team - Represents a team in the Task Management System.
-*
-* @author Amr
-* @version Oct 7, 2024
+ * Team - Represents a team in the Task Management System.
+ *
+ * @author Amr
+ * @version Oct 7, 2024
  */
 public class Team {
-
     private int id;
     private String team_name;
     private int team_leader_id;
-    
+
     /**
      * Constructs a new Team with the specified parameters
      * 
-     * @param id              The ID of the team.
-     * @param team_name       The name of the team.
-     * @param team_leader_id  The ID of the team leader.
+     * @param id             The ID of the team.
+     * @param team_name      The name of the team.
+     * @param team_leader_id The ID of the team leader.
      */
     public Team(int id, String team_name, int team_leader_id) {
 	this.id = id;

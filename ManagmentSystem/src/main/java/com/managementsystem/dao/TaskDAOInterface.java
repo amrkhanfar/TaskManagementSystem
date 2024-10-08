@@ -11,8 +11,7 @@ import com.managementsystem.model.Task;
  * @author Amr
  * @version Oct 7, 2024
  */
-public interface TaskDAOInterface {
-    
+public interface TaskDAOInterface { 
     /**
      * Adds a new Task to the database.
      * Note that the ID attribute will be discarded since 
