@@ -18,207 +18,208 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+/**
+ * 
+* EmployeeController - Controller handling CRUD operations for Employee entities.
+* And listing.
+*
+* @author 
+* @version Oct 8, 2024
+ */
 public class EmployeeController extends HttpServlet {
 
-	EmployeeService employeeService = new EmployeeService();
-	RoleService roleService = new RoleService();
-	TeamService teamService = new TeamService();
-	
-	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-		
-		HttpSession session = request.getSession(false);
-		if(session == null) {
-			response.sendRedirect("login.jsp");
-			return;
-		}
-		
-		Employee currentUser = (Employee) session.getAttribute("currentUser");
-		if(currentUser == null) {
-			response.sendRedirect("login.jsp");
-			return;
-		}
-		
-		if(Role.MANAGER != currentUser.getRole_id()) {
-			request.setAttribute("errorMessage", "You don't have access.");
-			request.getRequestDispatcher("home.jsp").forward(request, response);
-		}
-		
-		
-		String action = request.getParameter("action");
-		
-		if(action == null) {
-			action = "listAllEmployees";
-		}
-		
-		switch (action) {
-		
-		case "add":
-			showAddForm(request, response);
-			break;
-		case "edit":
-			showEditForm(request, response);
-			break;
-		case "delete":
-			deleteEmployee(request, response, currentUser);
-			break;
-		default:
-			listEmployees(request, response);
-			break;
-		}
+    EmployeeService employeeService = new EmployeeService();
+    RoleService roleService = new RoleService();
+    TeamService teamService = new TeamService();
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	HttpSession session = request.getSession(false);
+	if (session == null) {
+	    response.sendRedirect("login.jsp");
+	    return;
+	}
+
+	Employee currentUser = (Employee) session.getAttribute("currentUser");
+	if (currentUser == null) {
+	    response.sendRedirect("login.jsp");
+	    return;
 	}
 	
-	@Override
-	public void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-		HttpSession session = request.getSession();
-		
-		if(session == null) {
-			response.sendRedirect("login.jsp");
-			return;
-		}
-		
-		Employee currentUser = (Employee)session.getAttribute("currentUser");
-		if(currentUser == null) {
-			response.sendRedirect("login.jsp");
-			return;
-		}
-		
-		if(Role.MANAGER != currentUser.getRole_id()) {
-			request.setAttribute("errorMessage", "You don't have access.");
-			request.getRequestDispatcher("home.jsp").forward(request, response);
-		}
-		
-		String action = request.getParameter("action");
-		switch(action) {
-		
-		case "add":
-			addEmployeeFromForm(request, response, currentUser);
-			break;
-		case "edit":
-			editEmployeeFromForm(request, response, currentUser);
-			break;
-		default:
-			listEmployees(request, response);
-			break;
-		}
+	/*Only managers can access this controller*/
+	if (Role.MANAGER != currentUser.getRole_id()) {
+	    request.setAttribute("errorMessage", "You don't have access.");
+	    request.getRequestDispatcher("home.jsp").forward(request, response);
 	}
-	
-	private void listEmployees(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException  {
-		List<Employee> employees = employeeService.getAllEmployees();
-		request.setAttribute("employeeList", employees);
-		//request.setAttribute("dataMapper", dataMapper);
-		request.getRequestDispatcher("employeeList.jsp").forward(request, response);
-		return;
+
+	String action = request.getParameter("action");
+	if (action == null) {
+	    action = "listAllEmployees";
 	}
-	
-	private void showAddForm(HttpServletRequest request, HttpServletResponse response) 
-			throws ServletException, IOException {
-		request.setAttribute("action", "add");
-		
-		List<Role> roles = roleService.getAllRoles();
-		List<Team> teams = teamService.getAllTeams();
-		System.out.print(roles);
-		request.setAttribute("roles", roles);
-		request.setAttribute("teams", teams);
-		
-		request.getRequestDispatcher("employeeForm.jsp").forward(request, response);
-		return;
+
+	switch (action) {
+	case "add":
+	    showAddForm(request, response);
+	    break;
+	case "edit":
+	    showEditForm(request, response);
+	    break;
+	case "delete":
+	    deleteEmployee(request, response, currentUser);
+	    break;
+	default:
+	    listEmployees(request, response);
+	    break;
 	}
-	
-	private void showEditForm(HttpServletRequest request, HttpServletResponse response) 
-			throws ServletException, IOException {
-		Employee employee = employeeService.getEmployeeById(Integer.parseInt(request.getParameter("id")));
-		List<Role> roles = roleService.getAllRoles();
-		List<Team> teams = teamService.getAllTeams();
-		
-		request.setAttribute("action", "edit");
-		request.setAttribute("employee", employee);
-		request.setAttribute("roles", roles);
-		request.setAttribute("teams", teams);
-		
-		request.getRequestDispatcher("employeeForm.jsp").forward(request, response);
-		return;
     }
-	
-	private void deleteEmployee(HttpServletRequest request, HttpServletResponse response, Employee currentUser) throws ServletException, IOException{
-		int id = Integer.parseInt(request.getParameter("id"));
-		
-		try {
-			boolean isDeleted = employeeService.deleteEmployee(id, currentUser.getId());
-			if(isDeleted) {
-				request.setAttribute("notification", "Employee deleted successfulyy");
-			} else {
-				request.setAttribute("errorMessage", "An error occured. Employee is not deleted.");
-			}
-			
-			listEmployees(request, response);
-			
-		} catch (IllegalArgumentException | AuthorizationException e ) {
-			request.setAttribute("errorMessage", e);
-			listEmployees(request, response);
-		}
-		}
-	
-	private void addEmployeeFromForm(HttpServletRequest request, HttpServletResponse response, Employee currentUser) throws ServletException, IOException {
-	
-		try {
-			String name = request.getParameter("name");
-			String email = request.getParameter("email");
-			String password = request.getParameter("password");
-			String role = request.getParameter("role");
-			String team = request.getParameter("team");
-			
-			if (name == null || email == null || password == null || role == null || team == null ||
-		           name.isEmpty() || email.isEmpty() || password.isEmpty() || role.isEmpty() || team.isEmpty()) {
-		            throw new IllegalArgumentException("Make sure no fields empty");
-		        }
-			
-	        int roleIdParsed = Integer.parseInt(role);
-	        int teamIdParsed = Integer.parseInt(team);
-			Employee employee = new Employee (-1, name, email, roleIdParsed, teamIdParsed, password);
-			
-			employeeService.addEmployee(employee, currentUser.getId());
-			
-			request.setAttribute("notification", "New employee has been added successfuly");
-			listEmployees(request, response);
-		} catch (AuthorizationException | IllegalArgumentException  e) {
-			// TODO Auto-generated catch block
-			request.setAttribute("errorMessage", e.getMessage());
-			showAddForm(request, response);
-		}
+
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	HttpSession session = request.getSession();
+
+	if (session == null) {
+	    response.sendRedirect("login.jsp");
+	    return;
+	}
+
+	Employee currentUser = (Employee) session.getAttribute("currentUser");
+	if (currentUser == null) {
+	    response.sendRedirect("login.jsp");
+	    return;
 	}
 	
+	/*Only managers can access this controller*/
+	if (Role.MANAGER != currentUser.getRole_id()) {
+	    request.setAttribute("errorMessage", "You don't have access.");
+	    request.getRequestDispatcher("home.jsp").forward(request, response);
+	}
 
-	private void editEmployeeFromForm(HttpServletRequest request, HttpServletResponse response, Employee currentUser) throws ServletException, IOException {
-	    try {
-	        String id = request.getParameter("id");
-	        String name = request.getParameter("name");
-	        String email = request.getParameter("email");
-	        String password = request.getParameter("password");
-	        String role = request.getParameter("role");
-	        String team = request.getParameter("team");
+	String action = request.getParameter("action");
+	switch (action) {
+	case "add":
+	    addEmployeeFromForm(request, response, currentUser);
+	    break;
+	case "edit":
+	    editEmployeeFromForm(request, response, currentUser);
+	    break;
+	default:
+	    listEmployees(request, response);
+	    break;
+	}
+    }
 
-	        if (id == null || name == null || email == null || password == null || role == null || team == null ||
-	            id.isEmpty() || name.isEmpty() || email.isEmpty() || password.isEmpty() || role.isEmpty() || team.isEmpty()) {
-	            throw new IllegalArgumentException("Make sure no fields empty");
-	        }
+    private void listEmployees(HttpServletRequest request, HttpServletResponse response)
+	    throws ServletException, IOException {
+	List<Employee> employees = employeeService.getAllEmployees();
+	request.setAttribute("employeeList", employees);
+	request.getRequestDispatcher("employeeList.jsp").forward(request, response);
+	return;
+    }
 
+    private void showAddForm(HttpServletRequest request, HttpServletResponse response)
+	    throws ServletException, IOException {
+	request.setAttribute("action", "add");
+	List<Role> roles = roleService.getAllRoles();
+	List<Team> teams = teamService.getAllTeams();
+	request.setAttribute("roles", roles);
+	request.setAttribute("teams", teams);
 
-	        int idParsed = Integer.parseInt(id);
-	        int roleIdParsed = Integer.parseInt(role);
-	        int teamIdParsed = Integer.parseInt(team);
-	        Employee employee = new Employee(idParsed, name, email, roleIdParsed, teamIdParsed, password);
-	        
-	        employeeService.updateEmployee(employee, currentUser.getId());
+	request.getRequestDispatcher("employeeForm.jsp").forward(request, response);
+	return;
+    }
 
-	        request.setAttribute("notification", "Employee has been updated successfully");
-	        listEmployees(request, response);
-	        
-	    } catch (AuthorizationException | IllegalArgumentException e) {
-	        request.setAttribute("errorMessage", e.getMessage());
-	        showEditForm(request, response);
+    private void showEditForm(HttpServletRequest request, HttpServletResponse response)
+	    throws ServletException, IOException {
+	Employee employee = employeeService.getEmployeeById(Integer.parseInt(request.getParameter("id")));
+	List<Role> roles = roleService.getAllRoles();
+	List<Team> teams = teamService.getAllTeams();
+
+	request.setAttribute("action", "edit");
+	request.setAttribute("employee", employee);
+	request.setAttribute("roles", roles);
+	request.setAttribute("teams", teams);
+
+	request.getRequestDispatcher("employeeForm.jsp").forward(request, response);
+	return;
+    }
+
+    private void deleteEmployee(HttpServletRequest request, HttpServletResponse response, Employee currentUser)
+	    throws ServletException, IOException {
+	int id = Integer.parseInt(request.getParameter("id"));
+
+	try {
+	    boolean isDeleted = employeeService.deleteEmployee(id, currentUser.getId());
+	    if (isDeleted) {
+		request.setAttribute("notification", "Employee deleted successfulyy");
+	    } else {
+		request.setAttribute("errorMessage", "An error occured. Employee is not deleted.");
 	    }
+
+	    listEmployees(request, response);
+	} catch (IllegalArgumentException | AuthorizationException e) {
+	    request.setAttribute("errorMessage", e);
+	    listEmployees(request, response);
 	}
+    }
+
+    private void addEmployeeFromForm(HttpServletRequest request, HttpServletResponse response, Employee currentUser)
+	    throws ServletException, IOException {
+	try {
+	    String name = request.getParameter("name");
+	    String email = request.getParameter("email");
+	    String password = request.getParameter("password");
+	    String role = request.getParameter("role");
+	    String team = request.getParameter("team");
+
+	    if (name == null || email == null || password == null || role == null || team == null || name.isEmpty()
+		    || email.isEmpty() || password.isEmpty() || role.isEmpty() || team.isEmpty()) {
+		throw new IllegalArgumentException("Make sure no fields empty");
+	    }
+
+	    int roleIdParsed = Integer.parseInt(role);
+	    int teamIdParsed = Integer.parseInt(team);
+	    Employee employee = new Employee(-1, name, email, roleIdParsed, teamIdParsed, password);
+
+	    employeeService.addEmployee(employee, currentUser.getId());
+
+	    request.setAttribute("notification", "New employee has been added successfuly");
+	    listEmployees(request, response);
+	} catch (AuthorizationException | IllegalArgumentException e) {
+	    // TODO Auto-generated catch block
+	    request.setAttribute("errorMessage", e.getMessage());
+	    showAddForm(request, response);
 	}
+    }
+
+    private void editEmployeeFromForm(HttpServletRequest request, HttpServletResponse response, Employee currentUser)
+	    throws ServletException, IOException {
+	try {
+	    String id = request.getParameter("id");
+	    String name = request.getParameter("name");
+	    String email = request.getParameter("email");
+	    String password = request.getParameter("password");
+	    String role = request.getParameter("role");
+	    String team = request.getParameter("team");
+
+	    if (id == null || name == null || email == null || password == null || role == null || team == null
+		    || id.isEmpty() || name.isEmpty() || email.isEmpty() || password.isEmpty() || role.isEmpty()
+		    || team.isEmpty()) {
+		throw new IllegalArgumentException("Make sure no fields empty");
+	    }
+
+	    int idParsed = Integer.parseInt(id);
+	    int roleIdParsed = Integer.parseInt(role);
+	    int teamIdParsed = Integer.parseInt(team);
+	    Employee employee = new Employee(idParsed, name, email, roleIdParsed, teamIdParsed, password);
+
+	    employeeService.updateEmployee(employee, currentUser.getId());
+
+	    request.setAttribute("notification", "Employee has been updated successfully");
+	    listEmployees(request, response);
+
+	} catch (AuthorizationException | IllegalArgumentException e) {
+	    request.setAttribute("errorMessage", e.getMessage());
+	    showEditForm(request, response);
+	}
+    }
+}

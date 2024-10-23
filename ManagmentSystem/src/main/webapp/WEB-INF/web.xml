@@ -2,13 +2,13 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd" id="WebApp_ID" version="6.0">
   
   
-  <servlet>
+<servlet>
     <servlet-name>HomeRedirectServlet</servlet-name>
     <servlet-class>com.managementsystem.controller.HomeRedirectController</servlet-class>
 </servlet>
 <servlet-mapping>
     <servlet-name>HomeRedirectServlet</servlet-name>
-    <url-pattern>/</url-pattern>
+    <url-pattern>/home</url-pattern>
 </servlet-mapping>
   
  <servlet>
@@ -18,6 +18,15 @@
  <servlet-mapping>
  	<servlet-name>AuthenticationServlet</servlet-name>
  	<url-pattern>/authenticate</url-pattern>
+ </servlet-mapping>
+ 
+  <servlet>
+ 	<servlet-name>LogoutServlet</servlet-name>
+ 	<servlet-class>com.managementsystem.controller.LogoutController</servlet-class>
+ </servlet>
+ <servlet-mapping>
+ 	<servlet-name>LogoutServlet</servlet-name>
+ 	<url-pattern>/logout</url-pattern>
  </servlet-mapping>
  
  <servlet>

@@ -12,30 +12,27 @@ import com.managementsystem.util.DatabaseConnection;
 
 public class TaskStatusDAO implements TaskStatusDAOInterface {
 
-	@Override
-	public List<TaskStatus> getAllStatus() {
-		String sql = "SELECT * FROM task_status";
-        List<TaskStatus> statuses = new ArrayList<>();
+    @Override
+    public List<TaskStatus> getAllStatuses() {
+	String sql = "SELECT * FROM task_status";
+	List<TaskStatus> statuses = new ArrayList<>();
 
-        try (Connection connection = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            
-            while (rs.next()) {
-            	TaskStatus taskStatus = mapResultSetToTaskStatus(rs);
-            	statuses.add(taskStatus);
-            }
+	try (Connection connection = DatabaseConnection.getInstance().getConnection();
+		PreparedStatement pstmt = connection.prepareStatement(sql);
+		ResultSet rs = pstmt.executeQuery()) {
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return statuses;
+	    while (rs.next()) {
+		TaskStatus taskStatus = mapResultSetToTaskStatus(rs);
+		statuses.add(taskStatus);
+	    }
+	} catch (SQLException e) {
+	    e.printStackTrace();
 	}
-	
-	private TaskStatus mapResultSetToTaskStatus(ResultSet rs) throws SQLException {
-		TaskStatus taskStatus = new TaskStatus(rs.getInt("id"), rs.getString("status_name"));
-        return taskStatus;
+	return statuses;
     }
 
+    private TaskStatus mapResultSetToTaskStatus(ResultSet rs) throws SQLException {
+	TaskStatus taskStatus = new TaskStatus(rs.getInt("id"), rs.getString("status_name"));
+	return taskStatus;
+    }
 }
