@@ -7,13 +7,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.managementsystem.model.TaskStatus;
 import com.managementsystem.util.DatabaseConnection;
 
 public class TaskStatusDAO implements TaskStatusDAOInterface {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskStatusDAO.class);
 
     @Override
     public List<TaskStatus> getAllStatuses() {
+	LOGGER.debug("Entering getAllStatuses");
+	
 	String sql = "SELECT * FROM task_status";
 	List<TaskStatus> statuses = new ArrayList<>();
 
@@ -25,8 +31,9 @@ public class TaskStatusDAO implements TaskStatusDAOInterface {
 		TaskStatus taskStatus = mapResultSetToTaskStatus(rs);
 		statuses.add(taskStatus);
 	    }
+	    LOGGER.debug("Retreived {} task statuses", statuses.size());
 	} catch (SQLException e) {
-	    e.printStackTrace();
+	    LOGGER.error("SQLException in getAllStatuses: {}", e.getMessage());
 	}
 	return statuses;
     }

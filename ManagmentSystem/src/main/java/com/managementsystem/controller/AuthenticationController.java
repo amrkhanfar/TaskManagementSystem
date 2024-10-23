@@ -50,7 +50,6 @@ public class AuthenticationController extends HttpServlet {
 	    request.getRequestDispatcher("home.jsp").forward(request, response);
 	    return;
 	} catch (AuthenticationException | IllegalArgumentException e) {
-	    System.out.print(e.getMessage());
 	    request.setAttribute("errorMessage", e.getMessage());
 	    response.sendRedirect(request.getContextPath() + "/home");
 	    return;

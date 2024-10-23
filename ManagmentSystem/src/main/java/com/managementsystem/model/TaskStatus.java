@@ -59,4 +59,8 @@ public class TaskStatus {
 	this.status_name = status_name;
     }
 
+    @Override
+    public String toString() {
+	return "TaskStatus [id=" + id + ", status_name=" + status_name + "]";
+    }
 }

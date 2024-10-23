@@ -3,6 +3,9 @@ package com.managementsystem.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.managementsystem.dao.RoleDAO;
 import com.managementsystem.dao.TaskStatusDAO;
 import com.managementsystem.dao.TeamDAO;
@@ -26,7 +29,9 @@ public class DataMapper {
      * It might need some refactoring in the future maybe access it in a singleton
      * and gets updated whenver a new record is added to reams/roles/taskstatuses.
      */
-
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataMapper.class);
+    
     private RoleDAO roleDAO;
     private TeamDAO teamDAO;
     private TaskStatusDAO taskStatusDAO;
@@ -34,8 +39,10 @@ public class DataMapper {
     private Map<Integer, String> roleMap;
     private Map<Integer, String> teamMap;
     private Map<Integer, String> statusMap;
+    
 
     public DataMapper() {
+	LOGGER.debug("Entriing DataMapper constructor");
 	roleDAO = new RoleDAO();
 	teamDAO = new TeamDAO();
 	taskStatusDAO = new TaskStatusDAO();
@@ -54,6 +61,8 @@ public class DataMapper {
 	for (TaskStatus status : taskStatusDAO.getAllStatuses()) {
 	    statusMap.put(status.getId(), status.getStatus_name().trim());
 	}
+	LOGGER.debug("Exiting DataMapper constructor");
+	LOGGER.info("Roles/Teams/TaskStatuses has been mapped succefully.");
     }
 
     public Map<Integer, String> getRoleMap() {

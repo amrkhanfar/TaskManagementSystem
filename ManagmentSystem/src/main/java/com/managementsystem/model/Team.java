@@ -49,4 +49,8 @@ public class Team {
 	this.team_leader_id = team_leader_id;
     }
 
+    @Override
+    public String toString() {
+	return "Team [id=" + id + ", team_name=" + team_name + "]";
+    }
 }

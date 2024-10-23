@@ -4,20 +4,26 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DatabaseConnection {
     private static DatabaseConnection instance;
     private Connection connection;
+    
+    private final static Logger LOGGER = LoggerFactory.getLogger(DatabaseConnection.class);
 
     private DatabaseConnection() {
 	try {
 	    Class.forName("com.mysql.cj.jdbc.Driver");
 	} catch (ClassNotFoundException e) {
-	    throw new RuntimeException("Error loading MySQL Driver", e);
+	    LOGGER.warn("Error loading MYSQL Driver: {}", e.getMessage());
 	}
     }
 
     public static DatabaseConnection getInstance() {
 	if (instance == null) {
+	    LOGGER.info("Created a databaseConnection instance");
 	    instance = new DatabaseConnection();
 	}
 	return instance;
