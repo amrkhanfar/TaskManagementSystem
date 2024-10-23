@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.managementsystem.model.Employee;
 import com.managementsystem.model.Task;
+import com.managementsystem.model.TaskStatus;
 import com.managementsystem.util.DatabaseConnection;
 
 public class TaskDAO implements TaskDAOInterface {
@@ -81,16 +82,16 @@ public class TaskDAO implements TaskDAOInterface {
 
     @Override
     public List<Task> getPendingTasksForEmployee(int employeeId) {
-	String sql = "SELECT t.id, t.task_title, t.task_description "
-                   + "FROM employee_task et "
-		   + "JOIN tasks t ON et.task_id = t.id " 
+	String sql = "SELECT t.id, t.task_title, t.task_description, t.task_status "
+                   + "FROM tasks t "
+		   + "JOIN employee_task et ON et.task_id = t.id " 
                    + "WHERE et.employee_id = ? AND t.task_status = ?";
 	List<Task> tasks = new ArrayList<>();
 	try (Connection connection = DatabaseConnection.getInstance().getConnection();
 		PreparedStatement ps = connection.prepareStatement(sql)) {
 
 	    ps.setInt(1, employeeId);
-	    ps.setInt(2, 1);
+	    ps.setInt(2, TaskStatus.PENDING);
 	    try (ResultSet rs = ps.executeQuery()) {
 		while (rs.next()) {
 		    tasks.add(mapResultSetToTask(rs));

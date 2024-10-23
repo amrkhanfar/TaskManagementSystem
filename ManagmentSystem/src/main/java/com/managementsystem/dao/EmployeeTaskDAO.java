@@ -56,25 +56,23 @@ public class EmployeeTaskDAO implements EmployeeTaskDAOInterface {
     }
 
     @Override
-    public List<Employee> getEmployeesByTaskId(int taskId) {
+    public Employee getEmployeeByTaskId(int taskId) {
 	String sql = "SELECT * FROM employees e " + "WHERE e.id IN (" + "SELECT employee_id FROM employee_task "
 		+ "WHERE task_id = ?)";
-	List<Employee> employees = new ArrayList<>();
-
+	
+	Employee employee = null;
 	try (Connection connection = DatabaseConnection.getInstance().getConnection();
 		PreparedStatement ps = connection.prepareStatement(sql)) {
-
 	    ps.setInt(1, taskId);
 	    ResultSet rs = ps.executeQuery();
-
-	    while (rs.next()) {
-		Employee employee = EmployeeDAO.mapResultSetToEmployee(rs);
-		employees.add(employee);
+	    
+	    if (rs.next()) {
+		employee = EmployeeDAO.mapResultSetToEmployee(rs);
 	    }
 	} catch (SQLException e) {
 	    e.printStackTrace();
 	}
-	return employees;
+	return employee;
     }
 
     @Override

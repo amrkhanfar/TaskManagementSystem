@@ -1,26 +1,18 @@
-package com.managementsystem.controller;
+package com.managementsystem.deprecated;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.google.gson.Gson;
 import com.managementsystem.exception.AuthorizationException;
 import com.managementsystem.model.Employee;
 import com.managementsystem.model.Role;
 import com.managementsystem.model.Task;
 import com.managementsystem.model.TaskStatus;
 import com.managementsystem.model.Team;
-import com.managementsystem.model.comparators.TaskRepresentationStatusCompare;
-import com.managementsystem.model.comparators.TaskRepresentationTitleCompare;
 import com.managementsystem.service.EmployeeService;
 import com.managementsystem.service.TaskService;
 import com.managementsystem.service.TeamService;
-import com.managementsystem.util.DataMapper;
 import com.managementsystem.util.TaskRepresntation;
 
 import jakarta.servlet.ServletException;
@@ -33,6 +25,10 @@ import jakarta.servlet.http.HttpSession;
  * 
  * TaskController - Controller handling CRUD operations for Task entities And
  * approvals + listing.
+ * 
+ * This got deprecated because I needed to apply ajax requests on the front-end pages
+ * Requests will be handled diffrently for delete action and I had to add sorting to
+ * to tables
  *
  * @author
  * @version Oct 8, 2024
@@ -43,7 +39,6 @@ public class TaskController extends HttpServlet {
     private EmployeeService employeeService = new EmployeeService();
     private TeamService teamService = new TeamService();
     private com.managementsystem.dao.EmployeeTaskDAO employeeTaskDAO = new com.managementsystem.dao.EmployeeTaskDAO();
-    private DataMapper dataMapper = new DataMapper();
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -75,96 +70,27 @@ public class TaskController extends HttpServlet {
 	case "edit":
 	    showEditTaskForm(request, response, currentUser);
 	    break;
-	case "sort":
-	    sortTable(request, response, currentUser);
+	case "approve":
+	    approveTask(request, response, currentUser);
 	    break;
-	    
-	/*Not used because it got replaced with an ajax implementation in doPost*/    
-	case "markCompleted": 
+	case "markCompleted":
 	    markTaskCompleted(request, response, currentUser);
+	    break;
+	case "delete":
+	    System.out.print("delete task: " + (String)session.getAttribute("id") );
+	    deleteTask(request, response, currentUser);
 	    break;
 	default:
 	    listMyTasks(request, response, currentUser);
 	    break;
-	}
-    }
 
-    private void sortTable(HttpServletRequest request, HttpServletResponse response, Employee currentUser) throws IOException {
-	String column = request.getParameter("column");
-	String sortDirection = request.getParameter("sortDirection");
-	
-	List<TaskRepresntation> allTasksRep = new ArrayList<>();
-	if (currentUser.getRole_id() == Role.MANAGER) {
-	    List<Task> allTasks = taskService.getAllTasks();
-	    for (Task task : allTasks) {
-		Employee assignedEmployee = employeeTaskDAO.getEmployeeByTaskId(task.getId());
-		TaskRepresntation taskRepresntation = new TaskRepresntation(task, assignedEmployee);
-		allTasksRep.add(taskRepresntation);
-	    }
-	    
-	} else if (currentUser.getRole_id() == Role.TEAM_LEADER) {
-	    for (Employee employee : employeeService.getEmployeesByTeam(currentUser.getTeam_id())) {
-		for (Task task : taskService.getTasksByEmployee(employee.getId())) {
-		    TaskRepresntation taskRepresntation = new TaskRepresntation(task, employee);
-		    allTasksRep.add(taskRepresntation);
-		    }
-	    }
 	}
-	    
-	
-	TaskRepresentationTitleCompare trTitleCompare = new TaskRepresentationTitleCompare();
-	TaskRepresentationStatusCompare trStatusCompare = new TaskRepresentationStatusCompare();
-	
-	if (!sortDirection.equals("default")) {
-	    Comparator comparator = null;
-	    
-	    if (column.equals("title")) {
-		    comparator = trTitleCompare;
-		} else if (column.equals("status")) {
-		    comparator = trStatusCompare;
-		}
-		
-		if (sortDirection.equals("desc")) {
-			comparator = comparator.reversed();
-		    }
-		
-		Collections.sort(allTasksRep, comparator);
-	}
-	
-	StringBuilder htmlResponse = new StringBuilder();
-	for(TaskRepresntation task : allTasksRep) {
-	    htmlResponse.append("<tr data-task-id='").append(task.getData().getId()).append("'>")
-            .append("<td>").append(task.getData().getTask_title()).append("</td>")
-            .append("<td>").append(dataMapper.getStatusMap().get(task.getData().getTask_status())).append("</td>")
-            .append("<td>").append(task.getData().getTask_description()).append("</td>")
-            .append("<td>").append(task.getAssignedEmployee().getName()).append("</td>")
-            .append("<td>")
-            .append("<a href='' class='delete-button-small' id='task-delete-button'>Delete</a>")
-            .append(" | <a href='tasks?action=edit&id=").append(task.getData().getId()).append("' class='edit-button-small'>Edit</a>")
-            .append(" | ");
 
-        // Conditional rendering based on task status
-        if ("pending".equals(dataMapper.getStatusMap().get(task.getData().getTask_status()))) {
-            htmlResponse.append("<a href='tasks?action=approve&id=").append(task.getData().getId()).append("' class='submit-button-small' id='approve-button'>Approve</a>");
-        } else {
-            htmlResponse.append("<select class='select-field' id='task-status-select-field' name='taskStatus'>");
-            for (Map.Entry<Integer, String> status : dataMapper.getStatusMap().entrySet()) {
-                if (!"pending".equals(status.getValue())) {
-                    htmlResponse.append("<option value='").append(status.getKey()).append("'")
-                        .append(task.getData().getTask_status() == status.getKey() ? " selected" : "")
-                        .append(">").append(status.getValue()).append("</option>");
-                }
-            }
-            htmlResponse.append("</select>");
-        }
-        htmlResponse.append("</td></tr>");
-	}
-	response.setContentType("text/html");
-	response.getWriter().write(htmlResponse.toString());
     }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
 	HttpSession session = request.getSession(false);
 
 	if (session == null) {
@@ -180,25 +106,16 @@ public class TaskController extends HttpServlet {
 
 	String action = request.getParameter("action");
 	switch (action) {
+
 	case "createAssignCurrent":
 	    createAndAssignToCurrentUser(request, response, currentUser);
 	    break;
 	case "create":
+	    System.out.print("entered create task case");
 	    createTask(request, response, currentUser);
 	    break;
 	case "edit":
 	    editTask(request, response, currentUser);
-	    break;
-	case "updateStatus": //ajax
-	    System.out.print("update status: " +  request.getParameter("id"));
-	    updateTaskStatus(request, response, currentUser);
-	    break;
-	case "approve":
-	    System.out.print("Approve task: " + request.getParameter("id"));
-	    approveTask(request, response, currentUser);
-	    break;
-	case "delete":	//ajax
-	    deleteTask(request, response, currentUser);
 	    break;
 	default:
 	    listMyTasks(request, response, currentUser);
@@ -208,6 +125,9 @@ public class TaskController extends HttpServlet {
     private void listMyTasks(HttpServletRequest request, HttpServletResponse response, Employee currentUser)
 	    throws ServletException, IOException {
 	List<Task> tasks = taskService.getTasksByEmployee(currentUser.getId());
+	request.setAttribute("userTasks", tasks);
+	request.setAttribute("action", "listMyTasks");
+
 	List<TaskRepresntation> pendingTasksRep = new ArrayList<>();
 	List<TaskRepresntation> allTasksRep = new ArrayList<>();
 
@@ -230,19 +150,18 @@ public class TaskController extends HttpServlet {
 	} else if (currentUser.getRole_id() == Role.TEAM_LEADER) {
 	    for (Employee employee : employeeService.getEmployeesByTeam(currentUser.getTeam_id())) {
 		for(Task task : taskService.getPendingTasksForEmployee(employee.getId())) {
-		    TaskRepresntation taskRepresentation = new TaskRepresntation(task, employee);
-		    pendingTasksRep.add(taskRepresentation);
+			TaskRepresntation taskRepresentation = new TaskRepresntation(task, employee);
+			pendingTasksRep.add(taskRepresentation);
 		    }
 		for (Task task : taskService.getTasksByEmployee(employee.getId())) {
-		    TaskRepresntation taskRepresntation = new TaskRepresntation(task, employee);
-		    allTasksRep.add(taskRepresntation);
+			TaskRepresntation taskRepresntation = new TaskRepresntation(task, employee);
+			allTasksRep.add(taskRepresntation);
 		    }
 	    }
 	}
-	request.setAttribute("userTasks", tasks);
+	
 	request.setAttribute("allTasks", allTasksRep);
 	request.setAttribute("pendingTasks", pendingTasksRep);
-	request.setAttribute("action", "listMyTasks");
 	request.getRequestDispatcher("taskList.jsp").forward(request, response);
 	return;
     }
@@ -324,7 +243,7 @@ public class TaskController extends HttpServlet {
 
     private void approveTask(HttpServletRequest request, HttpServletResponse response, Employee currentUser)
 	    throws ServletException, IOException {
-	Map<String, String> jsonResponse = new HashMap<>();
+
 	try {
 	    String id = request.getParameter("id");
 
@@ -333,75 +252,36 @@ public class TaskController extends HttpServlet {
 	    }
 
 	    int idParsed = Integer.parseInt(id);
-	    taskService.approveTask(idParsed, currentUser.getId());
-	    
-	    jsonResponse.put("status", "success");
-	    jsonResponse.put("message", "Task approved successfully");
+	    taskService.updateTaskStatus(idParsed, TaskStatus.PENDING, currentUser.getId());
+
+	    request.setAttribute("notification", "Task approved successfully");
+	    listMyTasks(request, response, currentUser);
 	} catch (IllegalArgumentException | AuthorizationException e) {
-	    jsonResponse.put("status", "error");
-	    jsonResponse.put("message", e.getMessage());
+	    request.setAttribute("errorMessage", e.getMessage());
+	    listMyTasks(request, response, currentUser);
 	}
-	response.setContentType("application/json");
-	
-	String json = new Gson().toJson(jsonResponse);
-	response.getWriter().write(json);
     }
     
     private void deleteTask(HttpServletRequest request, HttpServletResponse response, Employee currentUser)
 	    throws ServletException, IOException{
-	String id = request.getParameter("id");
-	Map<String, String> jsonResponse = new HashMap<>();
-	    
+	
 	try {
+	    String id = request.getParameter("id");
+
 	    if (id == null || id.isEmpty()) {
-		throw new IllegalArgumentException("Task ID is missing");
+		throw new IllegalArgumentException("Make sure no fields empty");
 	    }
 	    
 	    int idParsed = Integer.parseInt(id);
 	    taskService.deleteTask(idParsed);
-	    
-	    jsonResponse.put("status", "success");
-	    jsonResponse.put("message", "Task Deleted Successfully");
+
+	    request.setAttribute("notification", "Task Deleted Successfully");
+	    listMyTasks(request, response, currentUser);
 	    
 	} catch (IllegalArgumentException e) {
-	    jsonResponse.put("status", "error");
-	    jsonResponse.put("message", e.getMessage());
+	    request.setAttribute("errorMessage", e.getMessage());
+	    listMyTasks(request, response, currentUser);
 	}
-	
-	response.setContentType("application/json");
-	response.setCharacterEncoding("UTF-8");
-	
-	String json = new Gson().toJson(jsonResponse);
-	response.getWriter().write(json);
-    }
-    
-    private void updateTaskStatus(HttpServletRequest request, HttpServletResponse response, Employee currentUser) throws IOException {
-	String id = request.getParameter("id");
-	String status = request.getParameter("status");
-	Map<String, String> jsonResponse = new HashMap<>();
-	
-	try {
-	    if (id == null || id.isEmpty() || status == null || status.isEmpty()) {
-		throw new IllegalArgumentException("Task ID / Updated status is missing");
-	    }
-	    
-	    int idParsed = Integer.parseInt(id);
-	    int statusParsed = Integer.parseInt(status);
-	    
-	    taskService.updateTaskStatus(idParsed, statusParsed, currentUser.getId());
-	    
-	    jsonResponse.put("status", "success");
-	    jsonResponse.put("message", "Task status updated successfully");
-	} catch (IllegalArgumentException | AuthorizationException e) {
-	    jsonResponse.put("status", "error");
-	    jsonResponse.put("message", e.getMessage());
-	}
-	
-	response.setContentType("application/json");
-	response.setCharacterEncoding("UTF-8");
-	
-	String json = new Gson().toJson(jsonResponse);
-	response.getWriter().write(json);
     }
 
     private void createAndAssignToCurrentUser(HttpServletRequest request, HttpServletResponse response,

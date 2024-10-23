@@ -32,6 +32,52 @@ public class TaskService implements TaskServiceInterface {
 	}
 	return employeeTaskDAO.assignTaskToEmployee(taskId, employeeId);
     }
+    
+    @Override
+    public void changeToCompleted(int taskId, int updaterId) throws AuthorizationException {
+	Task task = taskDAO.getTaskById(taskId);
+	if (task == null) {
+	    throw new IllegalArgumentException("Task not found.");
+	}
+	if (task.getTask_status() == TaskStatus.COMPLETED) {
+	    throw new IllegalArgumentException("Task already completed..");
+	}
+	
+	if (task.getTask_status() == TaskStatus.PENDING) {
+	    throw new IllegalArgumentException("Task is still awaiting for approval..");
+	}
+
+	Employee updater = employeeDAO.getEmployeeById(updaterId);
+	if (updater == null) {
+	    throw new IllegalArgumentException("Updater not found.");
+	}
+	
+	Employee assignedEmployee = employeeTaskDAO.getEmployeeByTaskId(taskId);
+	if(assignedEmployee == null) {
+	    throw new IllegalArgumentException("No assigned employees to the task.");
+	}
+
+	int approverRole = updater.getRole_id();
+	if (approverRole == Role.MANAGER) {
+	    
+	    /* Manager can assign tasks */
+	} else if (approverRole == Role.TEAM_LEADER) {
+
+	    if (assignedEmployee.getTeam_id() == updater.getTeam_id()) {
+		
+		/* Team leader can modify tasks to their team members*/
+	    } else {
+		throw new AuthorizationException("Team leaders can only modify tasks to their team memebers");
+	    }
+	} else if(updater.getId() == assignedEmployee.getId()) {
+	    //Developor can mark their task as completed.
+	    
+	} else {
+	    /* Employees can't assign tasks*/
+	    throw new AuthorizationException("You don't have premission to approve tasks");
+	}
+	updateTaskStatus(taskId, TaskStatus.COMPLETED, updaterId);
+    }
 
     @Override
     public void approveTask(int taskId, int approverId) throws AuthorizationException {
@@ -47,6 +93,11 @@ public class TaskService implements TaskServiceInterface {
 	if (approver == null) {
 	    throw new IllegalArgumentException("Approver not found.");
 	}
+	
+	Employee assignedEmployee = employeeTaskDAO.getEmployeeByTaskId(taskId);
+	if(assignedEmployee == null) {
+	    throw new IllegalArgumentException("No assigned employees to the task.");
+	}
 
 	int approverRole = approver.getRole_id();
 	if (approverRole == Role.MANAGER) {
@@ -54,16 +105,16 @@ public class TaskService implements TaskServiceInterface {
 	    /* Manager can assign tasks */
 	} else if (approverRole == Role.TEAM_LEADER) {
 
-	    if (approver.getTeam_id() == approver.getTeam_id()) {
+	    if (assignedEmployee.getTeam_id() == approver.getTeam_id()) {
 		
 		/* Team leader can assign tasks to their team members*/
 	    } else {
-		throw new AuthorizationException("Team leaders can only assign tasks to their team memebers");
+		throw new AuthorizationException("Team leaders can only approve tasks to their team memebers");
 	    }
 	} else {
 	    
 	    /* Employees can't assign tasks*/
-	    throw new AuthorizationException("You don't have premission to assign tasks");
+	    throw new AuthorizationException("You don't have premission to approve tasks");
 	}
 	updateTaskStatus(taskId, TaskStatus.ASSIGNED_IN_PROGRESS, approverId);
     }
@@ -95,6 +146,7 @@ public class TaskService implements TaskServiceInterface {
 
     @Override
     public boolean updateTask(Task task) {
+	
 	return taskDAO.updateTask(task);
     }
 
@@ -111,5 +163,20 @@ public class TaskService implements TaskServiceInterface {
     @Override
     public List<Task> getAllTasks() {
 	return taskDAO.getAllTasks();
+    }
+    
+    @Override
+    public void deleteTask(int taskId) {
+	Task task = taskDAO.getTaskById(taskId);
+	if (task == null) {
+	    throw new IllegalArgumentException("Task not found.");
+	}
+	
+	taskDAO.deleteTaskById(taskId);
+	Employee assignedEmployee = employeeTaskDAO.getEmployeeByTaskId(taskId);
+	
+	if(assignedEmployee != null) {
+	    employeeTaskDAO.removeTaskFromEmployee(taskId, assignedEmployee.getId());
+	}
     }
 }

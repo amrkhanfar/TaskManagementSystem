@@ -109,7 +109,8 @@ public class TeamController extends HttpServlet {
 		List<Employee> members = employeeService.getEmployeesByTeam(team.getId());
 		List<EmployeeRepresentation> memberRepresentations = new ArrayList<>();
 		for (Employee member : members) {
-		    EmployeeRepresentation memberRepresentation = new EmployeeRepresentation(member, null);
+		    List<Task> tasks = taskService.getTasksByEmployee(member.getId());
+		    EmployeeRepresentation memberRepresentation = new EmployeeRepresentation(member, tasks);
 		    memberRepresentations.add(memberRepresentation);
 		}
 		TeamRepresentation teamRepresentation = new TeamRepresentation(team, memberRepresentations);
@@ -178,12 +179,17 @@ public class TeamController extends HttpServlet {
 	}
 
 	List<Employee> members = employeeService.getEmployeesByTeam(teamId);
+	
+	List<Integer> membersIds = new ArrayList();
+	for(Employee memeber : members) {
+	    membersIds.add(memeber.getId());
+	}
 
 	List<Employee> allEmployees = employeeService.getAllEmployees();
-	request.setAttribute("eligibleEmployees", allEmployees);
+	request.setAttribute("allEmployees", allEmployees);
 
 	request.setAttribute("team", team);
-	request.setAttribute("members", members);
+	request.setAttribute("membersIds", membersIds);
 	request.setAttribute("action", "edit");
 
 	request.getRequestDispatcher("teamForm.jsp").forward(request, response);
@@ -191,11 +197,11 @@ public class TeamController extends HttpServlet {
 
     private void createTeam(HttpServletRequest request, HttpServletResponse response, Employee currentUser)
 	    throws ServletException, IOException {
-
+	
     }
 
     private void editTeam(HttpServletRequest request, HttpServletResponse response, Employee currentUser)
 	    throws ServletException, IOException {
-
+	
     }
 }

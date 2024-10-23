@@ -23,18 +23,26 @@ public class HomeRedirectController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
 	    throws ServletException, IOException {
+	
+	String requestURI = request.getRequestURI();
+
+	if (requestURI.endsWith(".css")) {
+	    request.getRequestDispatcher(requestURI).forward(request, response);
+	    return;
+	}
 
 	HttpSession session = request.getSession(false);
 	if (session == null) {
-	    response.sendRedirect("login.jsp");
+	    response.sendRedirect(request.getContextPath() + "/authenticate");
 	    return;
 	}
 
 	Employee currentUser = (Employee) session.getAttribute("currentUser");
 	if (currentUser == null) {
-	    response.sendRedirect("login.jsp");
+	    response.sendRedirect(request.getContextPath() + "/authenticate");
 	    return;
 	}
+	
 
 	request.setAttribute("currentUser", currentUser);
 	request.getRequestDispatcher("home.jsp").forward(request, response);

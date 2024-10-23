@@ -47,11 +47,13 @@ public class AuthenticationController extends HttpServlet {
 	     * check the util sub package.
 	     */
 	    session.setAttribute("dataMapper", dataMapper);
-	    response.sendRedirect("home.jsp");
+	    request.getRequestDispatcher("home.jsp").forward(request, response);
+	    return;
 	} catch (AuthenticationException | IllegalArgumentException e) {
 	    System.out.print(e.getMessage());
 	    request.setAttribute("errorMessage", e.getMessage());
-	    request.getRequestDispatcher("login.jsp").forward(request, response);
+	    response.sendRedirect(request.getContextPath() + "/home");
+	    return;
 	}
     }
 

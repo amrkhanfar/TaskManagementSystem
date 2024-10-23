@@ -38,7 +38,7 @@ public interface EmployeeTaskDAOInterface {
      * @param taskId the ID of the task.
      * @return a list of Employees assigned to the task.
      */
-    List<Employee> getEmployeesByTaskId(int taskId);
+    Employee getEmployeeByTaskId(int taskId);
 
     /**
      * Removes a Task assignment from an Employee.

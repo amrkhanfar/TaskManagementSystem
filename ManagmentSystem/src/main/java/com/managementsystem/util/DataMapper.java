@@ -52,7 +52,7 @@ public class DataMapper {
 
 	statusMap = new HashMap<>();
 	for (TaskStatus status : taskStatusDAO.getAllStatuses()) {
-	    statusMap.put(status.getId(), status.getStatus_name());
+	    statusMap.put(status.getId(), status.getStatus_name().trim());
 	}
     }
 

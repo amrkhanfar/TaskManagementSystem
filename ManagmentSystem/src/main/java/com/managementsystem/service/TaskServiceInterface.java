@@ -33,10 +33,7 @@ public interface TaskServiceInterface {
     boolean assignTask(int taskId, int employeeId);
 
     /**
-     * Approves a task.
-     * Changes it's status from pending to assigned.
-     * It's used when a developer creates a task for themself
-     * And their team leader or a manager approves it.
+     * Changes task status.
      *
      * @param taskId     the ID of the task to approve
      * @param approverId the ID of the user approving the task
@@ -107,4 +104,8 @@ public interface TaskServiceInterface {
      * @return true if the update was successful, false otherwise
      */
     boolean updateTask(Task task);
+    
+    void deleteTask(int taskId);
+
+    void changeToCompleted(int taskId, int updaterId) throws AuthorizationException;
 }
